@@ -78,6 +78,32 @@ regd_users.put("/auth/review/:isbn", verifyToken, (req, res) => {
     return res.status(200).json({ message: "Review added/updated successfully.", bookReviews });
 });
 
+// Delete a book review
+regd_users.delete("/auth/review/:isbn", verifyToken, (req, res) => {
+  const { isbn } = req.params;
+  const username = req.username; // Extracted from JWT
+
+  // Check if reviews exist for the book
+  if (!bookReviews[isbn]) {
+      return res.status(404).json({ message: "No reviews found for this book." });
+  }
+
+  // Check if the user has submitted a review
+  if (!bookReviews[isbn][username]) {
+      return res.status(403).json({ message: "You have not submitted a review for this book." });
+  }
+
+  // Delete the user's review
+  delete bookReviews[isbn][username];
+
+  // If no reviews remain for the book, remove the book entry
+  if (Object.keys(bookReviews[isbn]).length === 0) {
+      delete bookReviews[isbn];
+  }
+
+  return res.status(200).json({ message: "Your review has been deleted successfully.", bookReviews });
+});
+
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;

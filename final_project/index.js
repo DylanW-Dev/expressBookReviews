@@ -27,25 +27,22 @@ app.use("/customer/auth/*", function auth(req,res,next){
     }
 });
 
-const users = {}; // Object to store users
+const { users } = require('./router/auth_users.js'); // Use the same users array
 
-// Register a new user
 app.post("/register", (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
+    const { username, password } = req.body;
 
-    // Check if both username and password are provided
     if (!username || !password) {
         return res.status(400).json({ message: "Username and password are required." });
     }
 
-    // Check if the user already exists
-    if (users[username]) {
+    // Check if the user already exists in the array
+    if (users.some(user => user.username === username)) {
         return res.status(400).json({ message: "User already exists!" });
     }
 
-    // Add the new user to the users object
-    users[username] = { password };
+    // Add user to the shared users array
+    users.push({ username, password });
 
     return res.status(201).json({ message: "User successfully registered. Now you can log in." });
 });

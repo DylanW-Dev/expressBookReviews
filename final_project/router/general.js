@@ -158,4 +158,38 @@ public_users.get('/author/:author', async function (req, res) {
   }
 });
 
+
+// Function to fetch books by title asynchronously
+const fetchBooksByTitle = async (bookTitle) => {
+  return new Promise((resolve, reject) => {
+      setTimeout(() => {
+          let matchingBooks = [];
+
+          for (let bookId in books) {
+              if (books[bookId].title === bookTitle) {
+                  matchingBooks.push(books[bookId]);
+              }
+          }
+
+          if (matchingBooks.length > 0) {
+              resolve(matchingBooks); // Return matching books
+          } else {
+              reject(new Error("No books found with this title"));
+          }
+      }, 1000); // Simulating delay
+  });
+};
+
+// Get book details based on title (Refactored with Async-Await)
+public_users.get('/title/:title', async function (req, res) {
+  const bookTitle = req.params.title;
+
+  try {
+      const booksByTitle = await fetchBooksByTitle(bookTitle); // Wait for books
+      res.status(200).json({ books: booksByTitle });
+  } catch (error) {
+      res.status(404).json({ message: error.message });
+  }
+});
+
 module.exports.general = public_users;

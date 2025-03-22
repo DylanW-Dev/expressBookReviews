@@ -125,4 +125,37 @@ public_users.get('/isbn/:isbn', async function (req, res) {
   }
 });
 
+// Function to fetch books by author asynchronously
+const fetchBooksByAuthor = async (authorName) => {
+  return new Promise((resolve, reject) => {
+      setTimeout(() => {
+          let matchingBooks = [];
+
+          for (let bookId in books) {
+              if (books[bookId].author === authorName) {
+                  matchingBooks.push(books[bookId]);
+              }
+          }
+
+          if (matchingBooks.length > 0) {
+              resolve(matchingBooks); // Return matching books
+          } else {
+              reject(new Error("No books found for this author"));
+          }
+      }, 1000); // Simulating delay
+  });
+};
+
+// Get book details based on author (Refactored with Async-Await)
+public_users.get('/author/:author', async function (req, res) {
+  const authorName = req.params.author;
+
+  try {
+      const booksByAuthor = await fetchBooksByAuthor(authorName); // Wait for books
+      res.status(200).json({ books: booksByAuthor });
+  } catch (error) {
+      res.status(404).json({ message: error.message });
+  }
+});
+
 module.exports.general = public_users;
